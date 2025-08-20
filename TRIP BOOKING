@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GlobeVista Journeys – Trip Itinerary & Booking</title>
+  <style>
+    :root{
+      --bg:#0b1020;          /* deep navy */
+      --card:#101734;        /* card base */
+      --card-2:#131a3a;      /* card hover */
+      --text:#e8edf7;        /* text */
+      --muted:#b7c0d9;       /* muted text */
+      --brand:#7c5cff;       /* primary */
+      --brand-2:#9e86ff;     /* primary light */
+      --accent:#24d1b5;      /* accent */
+      --danger:#ff6b6b;      /* danger */
+      --ok:#22c55e;          /* success */
+      --ring: 0 0 0 2px #7c5cff55;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #1b1f3c88, transparent 60%), var(--bg);color:var(--text);font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial}
+    h1,h2,h3{margin:0 0 .5rem}
+    a{color:inherit}
+    .container{max-width:1180px;margin:auto;padding:22px}
+
+    /* Header */
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px;border-radius:var(--radius);backdrop-filter: blur(8px);background:linear-gradient(180deg,#ffffff11,#00000022);border:1px solid #ffffff22;position:sticky;top:12px;z-index:50}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:40px;height:40px;border-radius:12px;background:conic-gradient(from 140deg, var(--brand), var(--accent), var(--brand-2));box-shadow:inset 0 0 20px #00000055, 0 6px 18px #00000055}
+    .brand h1{font-size:22px;letter-spacing:.3px}
+    .nav .links{display:flex;gap:14px;flex-wrap:wrap}
+    .chip{padding:8px 12px;border-radius:999px;background:#ffffff10;border:1px solid #ffffff18;color:var(--muted);cursor:pointer;transition:.2s}
+    .chip:hover{transform:translateY(-1px);background:#ffffff16}
+
+    /* Hero */
+    .hero{display:grid;grid-template-columns: 1.1fr .9fr;gap:26px;margin:26px 0}
+    .hero-card{border:1px solid #ffffff22;background:linear-gradient(180deg,#0f1531,#0c122a);border-radius:24px;box-shadow:var(--shadow);padding:28px;position:relative;overflow:hidden}
+    .spark{position:absolute;inset:-30% -10% auto auto;background:radial-gradient(closest-side, #7c5cff55, transparent 70%);width:60%;height:60%;filter:blur(30px);opacity:.7}
+    .hero h2{font-size:32px;line-height:1.2;margin-bottom:10px}
+    .hero p{color:var(--muted);margin:0 0 16px}
+    .badges{display:flex;gap:10px;flex-wrap:wrap}
+    .badge{font-size:12px;padding:6px 10px;border-radius:999px;border:1px dashed #9e86ff66;background:#9e86ff1a;color:#dcd6ff}
+    .cta{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+    .btn{padding:10px 14px;border:none;border-radius:12px;background:var(--brand);color:white;cursor:pointer;box-shadow:0 10px 20px #7c5cff30;transition:.2s;font-weight:600}
+    .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+    .btn.outline{background:transparent;border:1px solid #ffffff30;color:var(--text)}
+
+    .booking{border:1px solid #ffffff22;background:linear-gradient(180deg,#0f1636,#0d1330);border-radius:24px;padding:22px}
+    .grid{display:grid;grid-template-columns: repeat(12, 1fr);gap:12px}
+    .col-12{grid-column: span 12}
+    .col-6{grid-column: span 6}
+    .col-4{grid-column: span 4}
+    .col-3{grid-column: span 3}
+    @media(max-width:920px){.hero{grid-template-columns: 1fr}.col-6,.col-4,.col-3{grid-column: span 12}}
+
+    label{font-size:12px;color:#cbd5e1;margin-bottom:6px;display:block}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .input, select{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #ffffff2a;background:#0d1330;color:var(--text);outline:none}
+    .input:focus, select:focus{box-shadow:var(--ring)}
+    .hint{font-size:12px;color:var(--muted)}
+    .total{display:flex;align-items:baseline;gap:10px}
+    .price{font-size:28px;font-weight:800}
+
+    /* Destinations section */
+    .section{margin:34px 0}
+    .section h3{font-size:22px}
+    .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+    @media(max-width:1200px){.cards{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:780px){.cards{grid-template-columns:repeat(1,1fr)}}
+    .card{position:relative;border:1px solid #ffffff22;background:linear-gradient(180deg,#0d1330,#0a1027);border-radius:20px;overflow:hidden;transition:.2s}
+    .card:hover{transform:translateY(-2px);background:var(--card-2)}
+    .thumb{height:150px;background:#11153a;display:grid;place-items:end left;padding:12px;color:#fff;font-weight:700;letter-spacing:.3px}
+    .thumb.kashmir{background-image:linear-gradient(#00000055,#00000000), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22><rect width=%22400%22 height=%22200%22 fill=%22%23141a3a%22/><circle cx=%22100%22 cy=%22120%22 r=%2260%22 fill=%22%23bfe5ff%22/><rect x=%220%22 y=%22140%22 width=%22400%22 height=%2260%22 fill=%22%230e1431%22/></svg>');background-size:cover;background-position:center}
+    .thumb.rajasthan{background-image:linear-gradient(#00000055,#00000000), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22><rect width=%22400%22 height=%22200%22 fill=%22%23261510%22/><polygon points=%220,200 80,80 160,200%22 fill=%22%23aa6b2a%22/><polygon points=%2280,200 160,70 240,200%22 fill=%22%23c8843f%22/></svg>')}
+    .thumb.kerala{background-image:linear-gradient(#00000055,#00000000), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22><rect width=%22400%22 height=%22200%22 fill=%22%230e2614%22/><rect x=%220%22 y=%2290%22 width=%22400%22 height=%2290%22 fill=%22%231a5f3a%22/><circle cx=%22320%22 cy=%2280%22 r=%2230%22 fill=%22%23ffe7a1%22/></svg>')}
+    .thumb.mumbai{background-image:linear-gradient(#00000055,#00000000), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22><rect width=%22400%22 height=%22200%22 fill=%22%230c1a2a%22/><rect x=%2280%22 y=%2280%22 width=%2220%22 height=%2270%22 fill=%22%23345d9d%22/><rect x=%22110%22 y=%2260%22 width=%2220%22 height=%2290%22 fill=%22%235f86d7%22/><rect x=%22140%22 y=%2070%22 width=%2220%22 height=%2280%22 fill=%22%234a73c7%22/></svg>')}
+    .thumb.kolkata{background-image:linear-gradient(#00000055,#00000000), url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22><rect width=%22400%22 height=%22200%22 fill=%22%231b1a10%22/><path d=%22M0,160 C80,120 160,120 240,160 S400,200 400,160 L400,200 L0,200 Z%22 fill=%22%23d0b36d%22/></svg>')}
+    .card-body{padding:14px}
+    .card-title{font-weight:700}
+    .tag{font-size:11px;color:#cbd5e1;border:1px solid #ffffff22;padding:4px 8px;border-radius:999px}
+    .card-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+
+    /* Itinerary accordion */
+    .accordion{border:1px solid #ffffff22;border-radius:14px;overflow:hidden}
+    .acc-item + .acc-item{border-top:1px solid #ffffff1a}
+    .acc-head{display:flex;justify-content:space-between;align-items:center;padding:14px;background:#0e1432;cursor:pointer}
+    .acc-head:hover{background:#10183a}
+    .acc-body{padding:14px;display:none;background:#0b1230}
+    .acc-item.open .acc-body{display:block}
+
+    /* Table */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 12px;border-bottom:1px solid #ffffff1a;text-align:left}
+    th{color:#cbd5e1;font-weight:600}
+    tr:hover td{background:#ffffff07}
+
+    /* Toast */
+    .toast{position:fixed;bottom:16px;right:16px;background:#0d132f;border:1px solid #ffffff1f;padding:12px 14px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);transition:.25s z-index;z-index:100}
+    .toast.show{opacity:1;transform:translateY(0)}
+
+    .mini{font-size:12px;color:#9fb0d8}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navbar -->
+    <div class="nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Have A Break Tourism</h1>
+      </div>
+      <div class="links">
+        <button class="chip" onclick="scrollToId('destinations')">Destinations</button>
+        <button class="chip" onclick="scrollToId('itineraries')">Itineraries</button>
+        <button class="chip" onclick="scrollToId('book')">Book Now</button>
+        <button class="chip" onclick="scrollToId('mybookings')">My Bookings</button>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-card">
+        <div class="spark"></div>
+        <h2>Design your perfect India escape ✨</h2>
+        <p>Hand-picked routes across Kashmir, Rajasthan, Kerala, Mumbai, and Kolkata with transparent pricing and instant booking.</p>
+        <div class="badges">
+          <span class="badge">100% Refund on 48h notice</span>
+          <span class="badge">Secure Payments</span>
+          <span class="badge">Curated Stays</span>
+        </div>
+        <div class="cta">
+          <button class="btn" onclick="scrollToId('book')">Plan & Book</button>
+          <button class="btn outline" onclick="scrollToId('itineraries')">Browse Itineraries</button>
+        </div>
+      </div>
+
+      <!-- Booking panel -->
+      <form id="bookingForm" class="booking">
+        <div class="grid">
+          <div class="col-12"><h3 id="book">Create your plan</h3></div>
+
+          <div class="col-6 field">
+            <label for="destination">Destination</label>
+            <select id="destination" required>
+              <option value="Kashmir">Kashmir</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Kolkata">Kolkata</option>
+            </select>
+          </div>
+
+          <div class="col-3 field">
+            <label for="start">Start date</label>
+            <input id="start" class="input" type="date" required />
+          </div>
+          <div class="col-3 field">
+            <label for="end">End date</label>
+            <input id="end" class="input" type="date" required />
+          </div>
+
+          <div class="col-3 field">
+            <label for="adults">Adults</label>
+            <input id="adults" class="input" type="number" min="1" value="2" required />
+          </div>
+          <div class="col-3 field">
+            <label for="children">Children</label>
+            <input id="children" class="input" type="number" min="0" value="0" />
+          </div>
+
+          <div class="col-3 field">
+            <label for="hotel">Hotel Class</label>
+            <select id="hotel">
+              <option value="3">3★</option>
+              <option value="4" selected>4★</option>
+              <option value="5">5★</option>
+            </select>
+          </div>
+          <div class="col-3 field">
+            <label for="plan">Plan</label>
+            <select id="plan">
+              <option value="budget">Budget</option>
+              <option value="standard" selected>Standard</option>
+              <option value="luxury">Luxury</option>
+            </select>
+          </div>
+
+          <div class="col-12">
+            <div class="grid" style="align-items:end">
+              <div class="col-6">
+                <div class="hint">Pricing auto-calculates from nights, travellers, hotel class, and plan. Taxes included.</div>
+                <div class="total" style="margin-top:8px">
+                  <span class="mini">Estimated Total</span>
+                  <span id="totalPrice" class="price">₹—</span>
+                </div>
+              </div>
+              <div class="col-6" style="text-align:right">
+                <button type="button" class="btn outline" onclick="resetForm()">Reset</button>
+                <button type="submit" class="btn">Book Trip</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Destination Cards -->
+    <section id="destinations" class="section">
+      <h3>Featured Destinations</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="thumb kashmir">&nbsp;&nbsp;Kashmir</div>
+          <div class="card-body">
+            <div class="mini">Srinagar • Gulmarg • Pahalgam</div>
+            <div class="card-row">
+              <span class="tag">Best: Apr–Oct</span>
+              <button class="btn" onclick="jumpToItinerary('Kashmir')">View Itinerary</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="thumb rajasthan">&nbsp;&nbsp;Rajasthan</div>
+          <div class="card-body">
+            <div class="mini">Jaipur • Jodhpur • Udaipur</div>
+            <div class="card-row">
+              <span class="tag">Best: Oct–Mar</span>
+              <button class="btn" onclick="jumpToItinerary('Rajasthan')">View Itinerary</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="thumb kerala">&nbsp;&nbsp;Kerala</div>
+          <div class="card-body">
+            <div class="mini">Munnar • Alleppey • Kochi</div>
+            <div class="card-row">
+              <span class="tag">Best: Sep–Mar</span>
+              <button class="btn" onclick="jumpToItinerary('Kerala')">View Itinerary</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="thumb mumbai">&nbsp;&nbsp;Mumbai</div>
+          <div class="card-body">
+            <div class="mini">Gateway • Colaba • Bandra</div>
+            <div class="card-row">
+              <span class="tag">Year-round</span>
+              <button class="btn" onclick="jumpToItinerary('Mumbai')">View Itinerary</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="thumb kolkata">&nbsp;&nbsp;Kolkata</div>
+          <div class="card-body">
+            <div class="mini">Howrah • Park Street • Kalighat</div>
+            <div class="card-row">
+              <span class="tag">Best: Nov–Feb</span>
+              <button class="btn" onclick="jumpToItinerary('Kolkata')">View Itinerary</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Itineraries -->
+    <section id="itineraries" class="section">
+      <h3>Sample Itineraries</h3>
+      <div id="itineraryWrap"></div>
+    </section>
+
+    <!-- My Bookings -->
+    <section id="mybookings" class="section">
+      <h3>My Bookings</h3>
+      <div class="accordion" id="bookingsAcc">
+        <div class="acc-item open">
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <strong>Upcoming & Past</strong>
+            <span class="mini">Click to toggle</span>
+          </div>
+          <div class="acc-body">
+            <div style="overflow:auto">
+              <table id="bookingsTable">
+                <thead>
+                  <tr>
+                    <th>Booking ID</th>
+                    <th>Destination</th>
+                    <th>Dates</th>
+                    <th>Nights</th>
+                    <th>Travellers</th>
+                    <th>Plan</th>
+                    <th>Hotel</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="mini" style="text-align:center;margin:26px 0 10px">© <span id="year"></span> GlobeVista Journeys • Demo UI (no payments collected)</div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const itineraries = {
+      "Kashmir": [
+        { day: 1, title: "Arrive Srinagar", items:["Shikara ride on Dal Lake","Check-in houseboat","Sunset at Boulevard Road"] },
+        { day: 2, title: "Gulmarg Excursion", items:["Gondola Phase 1","Meadow walk","Kongdori viewpoint"] },
+        { day: 3, title: "Pahalgam Day Trip", items:["Aru & Betaab Valley","Riverside café","Return to Srinagar"] },
+        { day: 4, title: "Old City & Depart", items:["Hazratbal shrine","Handicraft bazaar","Airport drop"] },
+      ],
+      "Rajasthan": [
+        { day: 1, title: "Jaipur Highlights", items:["Amber Fort","City Palace","Hawa Mahal"] },
+        { day: 2, title: "Blue Jodhpur", items:["Mehrangarh Fort","Old city walk","Sardar Market"] },
+        { day: 3, title: "Udaipur Lakes", items:["City Palace","Pichola boat ride","Saheliyon-ki-Bari"] },
+        { day: 4, title: "Leisure & Depart", items:["Café hop","Local crafts","Depart"] },
+      ],
+      "Kerala": [
+        { day: 1, title: "Munnar Tea Hills", items:["Tea museum","Eravikulam NP","Local dinner"] },
+        { day: 2, title: "Munnar Viewpoints", items:["Top Station","Mattupetty Dam","Echo Point"] },
+        { day: 3, title: "Alleppey Backwaters", items:["Houseboat cruise","Kerala meals onboard","Sunset" ] },
+        { day: 4, title: "Kochi & Depart", items:["Fort Kochi walk","Chinese nets","Airport drop"] },
+      ],
+      "Mumbai": [
+        { day: 1, title: "South Mumbai", items:["Gateway of India","Colaba Causeway","Marine Drive"] },
+        { day: 2, title: "Cultural Trail", items:["Elephanta Caves","Kala Ghoda","Chowpatty"] },
+        { day: 3, title: "Bandra & Beyond", items:["Street art","Bandra Fort","Sea Link views"] },
+        { day: 4, title: "Markets & Depart", items:["Crawford Market","BKC cafés","Depart"] },
+      ],
+      "Kolkata": [
+        { day: 1, title: "Colonial Core", items:["Victoria Memorial","Park Street","Nizam's Kathi Roll"] },
+        { day: 2, title: "Ghats & Temples", items:["Howrah Bridge","Dakshineswar/Belur","Kumartuli"] },
+        { day: 3, title: "Art & Coffee", items:["Indian Museum","College Street","Coffee House"] },
+        { day: 4, title: "Markets & Depart", items:["New Market","Mishti trail","Depart"] },
+      ]
+    };
+
+    const baseRates = { // per-person, per-night base in INR (Standard 4★)
+      "Kashmir": 3800,
+      "Rajasthan": 3600,
+      "Kerala": 4200,
+      "Mumbai": 4500,
+      "Kolkata": 3300,
+    };
+
+    const planMultiplier = { budget: 0.85, standard: 1, luxury: 1.45 };
+    const hotelMultiplier = { 3: 0.85, 4: 1, 5: 1.35 };
+
+    // Utilities
+    const byId = id => document.getElementById(id);
+    function nightsBetween(a,b){
+      const ms = new Date(b) - new Date(a);
+      return Math.max(1, Math.ceil(ms / (1000*60*60*24)));
+    }
+    function toast(msg, ok=false){
+      const el = byId('toast');
+      el.textContent = msg;
+      el.style.borderColor = ok ? '#22c55e55' : '#ffffff1f';
+      el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'), 3000);
+    }
+    function scrollToId(id){
+      document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    // Accordion
+    function toggleAcc(head){ head.parentElement.classList.toggle('open'); }
+
+    // Render itinerary accordions for each destination
+    function renderItineraries(){
+      const wrap = byId('itineraryWrap');
+      wrap.innerHTML = '';
+      Object.keys(itineraries).forEach(place=>{
+        const acc = document.createElement('div');
+        acc.className = 'accordion';
+        const item = document.createElement('div');
+        item.className = 'acc-item';
+        item.innerHTML = `
+          <div class="acc-head" onclick="toggleAcc(this)">
+            <strong>${place}</strong>
+            <span class="mini">Click to view day-wise plan</span>
+          </div>
+          <div class="acc-body"></div>
+        `;
+        const body = item.querySelector('.acc-body');
+        itineraries[place].forEach(d=>{
+          const block = document.createElement('div');
+          block.style.margin = '6px 0 12px';
+          block.innerHTML = `<div style="font-weight:700">Day ${d.day}: ${d.title}</div>`+
+            `<div class="mini">• ${d.items.join(' • ')}</div>`;
+          body.appendChild(block);
+        });
+        acc.appendChild(item);
+        wrap.appendChild(acc);
+      });
+    }
+
+    // Jump to itinerary and select destination
+    function jumpToItinerary(place){
+      byId('destination').value = place;
+      calcPrice();
+      scrollToId('itineraries');
+      toast(`Loaded ${place} itinerary`, true);
+    }
+
+    // Price calculation
+    function calcPrice(){
+      const dest = byId('destination').value;
+      const start = byId('start').value;
+      const end = byId('end').value;
+      const a = parseInt(byId('adults').value||0,10);
+      const c = parseInt(byId('children').value||0,10);
+      const hotel = byId('hotel').value;
+      const plan = byId('plan').value;
+
+      let nights = (start && end) ? nightsBetween(start,end) : 3; // default
+      const ppl = a + c*0.6; // children at 60%
+      const base = baseRates[dest] || 3500;
+      const price = nights * ppl * base * planMultiplier[plan] * hotelMultiplier[hotel];
+      byId('totalPrice').textContent = isFinite(price) ? `₹${Math.round(price).toLocaleString('en-IN')}` : '₹—';
+      return { price: Math.round(price), nights };
+    }
+
+    // Booking storage (localStorage)
+    function loadBookings(){
+      return JSON.parse(localStorage.getItem('gv_bookings')||'[]');
+    }
+    function saveBookings(rows){
+      localStorage.setItem('gv_bookings', JSON.stringify(rows));
+    }
+    function renderBookings(){
+      const tbody = document.querySelector('#bookingsTable tbody');
+      const rows = loadBookings();
+      tbody.innerHTML='';
+      rows.forEach((r,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.destination}</td>
+          <td>${r.start} → ${r.end}</td>
+          <td>${r.nights}</td>
+          <td>${r.adults + (r.children||0)}</td>
+          <td>${r.plan}</td>
+          <td>${r.hotel}★</td>
+          <td>₹${r.total.toLocaleString('en-IN')}</td>
+          <td>
+            <button class="chip" onclick="editBooking(${i})">Edit</button>
+            <button class="chip" onclick="deleteBooking(${i})" style="border-color:#ff6b6b66;color:#ffb0b0">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      })
+    }
+    function deleteBooking(i){
+      const rows = loadBookings();
+      rows.splice(i,1); saveBookings(rows); renderBookings();
+      toast('Booking removed');
+    }
+    function editBooking(i){
+      const r = loadBookings()[i];
+      if(!r) return;
+      byId('destination').value = r.destination;
+      byId('start').value = r.start;
+      byId('end').value = r.end;
+      byId('adults').value = r.adults;
+      byId('children').value = r.children;
+      byId('hotel').value = r.hotel;
+      byId('plan').value = r.plan;
+      calcPrice();
+      scrollToId('book');
+      toast('Loaded booking into form', true);
+    }
+
+    // Form interactions
+    ['destination','start','end','adults','children','hotel','plan'].forEach(id=>{
+      byId(id).addEventListener('change', calcPrice);
+      byId(id).addEventListener('input', calcPrice);
+    });
+
+    function resetForm(){
+      byId('bookingForm').reset();
+      byId('destination').value = 'Kashmir';
+      byId('adults').value = 2;
+      byId('children').value = 0;
+      byId('hotel').value = 4;
+      byId('plan').value = 'standard';
+      byId('totalPrice').textContent = '₹—';
+      toast('Form reset');
+    }
+
+    byId('bookingForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const dest = byId('destination').value;
+      const start = byId('start').value;
+      const end = byId('end').value;
+      const adults = parseInt(byId('adults').value||0,10);
+      const children = parseInt(byId('children').value||0,10);
+      const hotel = parseInt(byId('hotel').value,10);
+      const plan = byId('plan').value;
+      if(!start || !end){ toast('Please select your dates'); return; }
+      const { price, nights } = calcPrice();
+      const id = 'GV' + Math.random().toString(36).slice(2,8).toUpperCase();
+      const row = { id, destination: dest, start, end, nights, adults, children, plan, hotel, total: price };
+      const rows = loadBookings(); rows.unshift(row); saveBookings(rows); renderBookings();
+      toast(`Booked ${dest}! Ref: ${id}`, true);
+      resetForm();
+    });
+
+    // Init
+    (function init(){
+      renderItineraries();
+      renderBookings();
+      byId('year').textContent = new Date().getFullYear();
+      // sensible default dates: today +3 nights
+      const today = new Date();
+      const end = new Date(); end.setDate(today.getDate()+3);
+      byId('start').valueAsDate = today;
+      byId('end').valueAsDate = end;
+      calcPrice();
+    })();
+  </script>
+</body>
+</html>
